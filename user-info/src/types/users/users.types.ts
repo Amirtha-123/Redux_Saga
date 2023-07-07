@@ -6,8 +6,9 @@ export interface IUsersResponse {
 }
 
 export interface IUser {
-  id?: string;
-  title?: "ms" | "miss" | "mr" | "mrs";
+  id?: undefined | string;
+  //title?: "ms" | "miss" | "mr" | "mrs";
+  title?: string;
   firstName: string;
   lastName: string;
   email: string;

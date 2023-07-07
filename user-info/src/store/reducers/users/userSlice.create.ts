@@ -59,9 +59,7 @@ const userSlice = createSlice({
       state: IUserReducer,
       action: PayloadAction<IUsersResponse>
     ) => {
-      console.log("SUCCESS LIST", action);
       const { data } = action.payload;
-      console.log(data);
       return {
         ...state,
         loading: false,
@@ -70,6 +68,55 @@ const userSlice = createSlice({
       };
     },
     getUsersFailure: (state: IUserReducer, action: PayloadAction<string>) => {
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    },
+    deleteUser: (state: IUserReducer, action: PayloadAction<string>) => {
+      const userId = action.payload;
+      const updatedUsers = state.users.filter((user) => user.id !== userId);
+      return {
+        ...state,
+        loading: false,
+        users: updatedUsers,
+        error: null,
+      };
+    },
+    deleteUserSuccess: (state: IUserReducer) => {
+      return {
+        ...state,
+        successMessage: "User deleted successfully",
+        error: null,
+      };
+    },
+    deleteUserFailure: (state: IUserReducer, action: PayloadAction<string>) => {
+      return {
+        ...state,
+        error: action.payload,
+      };
+    },
+    editUserStart: (state: IUserReducer) => {
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    },
+    editUserSuccess: (state: IUserReducer, action: PayloadAction<IUser>) => {
+      const updatedUsers = state.users.map((user) =>
+        user.id === action.payload.id ? action.payload : user
+      );
+
+      return {
+        ...state,
+        loading: false,
+        users: updatedUsers,
+        error: null,
+      };
+    },
+    editUserFailure: (state: IUserReducer, action: PayloadAction<string>) => {
       return {
         ...state,
         loading: false,
