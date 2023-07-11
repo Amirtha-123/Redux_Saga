@@ -4,19 +4,28 @@ export interface IUsersResponse {
   page: number;
   limit: number;
 }
-
 export interface IUser {
-  id?: undefined | string;
-  //title?: "ms" | "miss" | "mr" | "mrs";
-  title?: string;
+  id?: undefined;
+  title: string;
   firstName: string;
   lastName: string;
   email: string;
   picture?: string;
 }
-
-export interface IUserReducer extends Omit<IUsersResponse, "data"> {
-  loading?: boolean;
+export interface IUserUpdate {
+  isUpdated: boolean;
+  isUpdateLoading: boolean;
+}
+export interface IUserDelete {
+  isDelete: boolean;
+  isDeleteLoading: boolean;
+}
+export interface IUserReducer
+  extends Omit<IUsersResponse, "data">,
+    IUserUpdate,
+    IUserDelete {
+  isLoading?: boolean;
   error?: string | null;
   users: IUser[];
+  currentUser: IUser | null;
 }

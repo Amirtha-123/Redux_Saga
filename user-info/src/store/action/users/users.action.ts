@@ -16,4 +16,7 @@ export const EDIT_USER = "EDIT_USER";
 export const editUserAction = createAction(EDIT_USER);
 
 export const UPDATE_USER = "UPDATE_USER";
-export const updateUserAction = createAction(UPDATE_USER);
+export const updateUserAction = (payload: IUser) => ({
+  type: "UPDATE_USER",
+  payload,
+});

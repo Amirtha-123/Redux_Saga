@@ -7,28 +7,33 @@ import {
 
 const initialState: IUserReducer = {
   users: [],
-  loading: false,
+  isLoading: false,
   error: null,
   page: 1,
   total: 0,
   limit: 20,
+  currentUser: null,
+  isUpdated: false,
+  isUpdateLoading: false,
+  isDelete: false,
+  isDeleteLoading: false,
 };
 
 const userSlice = createSlice({
-  name: "user",
+  name: "create",
   initialState: initialState,
   reducers: {
     createUserStart: (state: IUserReducer) => {
       return {
         ...state,
-        loading: true,
+        isLoading: true,
         error: null,
       };
     },
     createUserSuccess: (state: IUserReducer, action: PayloadAction<IUser>) => {
       return {
         ...state,
-        loading: false,
+        isLoading: false,
         users: [...state.users, action.payload],
         error: null,
       };
@@ -36,14 +41,14 @@ const userSlice = createSlice({
     createUserFailure: (state: IUserReducer, action: PayloadAction<string>) => {
       return {
         ...state,
-        loading: false,
+        isLoading: false,
         error: action.payload,
       };
     },
     createUserReset: (state: IUserReducer) => {
       return {
         ...state,
-        loading: false,
+        isLoading: false,
         users: [],
         error: null,
       };
@@ -51,7 +56,7 @@ const userSlice = createSlice({
     getUsersStart: (state: IUserReducer) => {
       return {
         ...state,
-        loading: true,
+        isLoading: true,
         error: null,
       };
     },
@@ -62,7 +67,7 @@ const userSlice = createSlice({
       const { data } = action.payload;
       return {
         ...state,
-        loading: false,
+        isLoading: false,
         users: data,
         error: null,
       };
@@ -70,7 +75,7 @@ const userSlice = createSlice({
     getUsersFailure: (state: IUserReducer, action: PayloadAction<string>) => {
       return {
         ...state,
-        loading: false,
+        isLoading: false,
         error: action.payload,
       };
     },
@@ -79,9 +84,10 @@ const userSlice = createSlice({
       const updatedUsers = state.users.filter((user) => user.id !== userId);
       return {
         ...state,
-        loading: false,
+        isLoading: false,
         users: updatedUsers,
         error: null,
+        isDeleteLoading: true,
       };
     },
     deleteUserSuccess: (state: IUserReducer) => {
@@ -89,38 +95,81 @@ const userSlice = createSlice({
         ...state,
         successMessage: "User deleted successfully",
         error: null,
+        isDelete: true,
+        isDeleteLoading: false,
       };
     },
     deleteUserFailure: (state: IUserReducer, action: PayloadAction<string>) => {
       return {
         ...state,
         error: action.payload,
+        isDeleteLoading: false,
+      };
+    },
+    userDeleteRest: (state) => {
+      return {
+        ...state,
+        isdelete: false,
+        currentUser: null,
+        isDeleteLoading: false,
       };
     },
     editUserStart: (state: IUserReducer) => {
       return {
         ...state,
-        loading: true,
+        isLoading: true,
         error: null,
       };
     },
     editUserSuccess: (state: IUserReducer, action: PayloadAction<IUser>) => {
-      const updatedUsers = state.users.map((user) =>
-        user.id === action.payload.id ? action.payload : user
-      );
-
       return {
         ...state,
-        loading: false,
-        users: updatedUsers,
+        isLoading: false,
+        currentUser: action.payload,
         error: null,
       };
     },
     editUserFailure: (state: IUserReducer, action: PayloadAction<string>) => {
       return {
         ...state,
-        loading: false,
+        isLoading: false,
         error: action.payload,
+      };
+    },
+    updateUserStart: (state) => {
+      return {
+        ...state,
+        error: null,
+        successMessage: null,
+        isUpdateLoading: true,
+      };
+    },
+    updateUserSuccess: (state) => {
+      return {
+        ...state,
+        isLoading: false,
+        successMessage: "User updated successfully",
+        error: null,
+        isUpdated: true,
+        isUpdateLoading: false,
+      };
+    },
+    updateUserFailure: (state, action) => {
+      return {
+        ...state,
+        isLoading: false,
+        error: action.payload,
+        successMessage: null,
+        isUpdated: false,
+        isUpdateLoading: false,
+      };
+    },
+    userUpdateReset: (state) => {
+      return {
+        ...state,
+        isUpdated: false,
+        currentUser: null,
+        isUpdateLoading: false,
       };
     },
   },

@@ -11,6 +11,7 @@ import {
   createUserAction,
   createUserReset,
 } from "../../../store/action/users/users.action";
+import "../../../style/style.css";
 
 const UserForm = () => {
   const navigate = useNavigate();
@@ -18,20 +19,20 @@ const UserForm = () => {
   const [formData, setFormData] = useState<IUser>({
     ...USER_INIT_STATE,
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     const isValid = validateForm(formData);
     if (isValid) {
+      setIsLoading(true);
       const data = {
         ...formData,
         //firstName: "test",
       };
-      console.log("dispatched", data);
       dispatch(createUserAction(data));
-      setTimeout(() => {
-        navigate(ROUTERS.home);
-      }, 1000);
+
+      setIsLoading(false);
     }
   };
 
@@ -98,9 +99,11 @@ const UserForm = () => {
         </div>
         <br />
         <div>
-          <button type="submit">Submit</button>
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? "Submitting..." : "Submit"}
+          </button>
           &nbsp;&nbsp;
-          <button type="reset" onClick={handleReset}>
+          <button type="reset" onClick={handleReset} disabled={isLoading}>
             Reset
           </button>
         </div>

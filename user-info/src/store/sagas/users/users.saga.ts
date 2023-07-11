@@ -1,16 +1,17 @@
 import { call, put, takeEvery } from "redux-saga/effects";
 import { AxiosResponse } from "axios";
 import { IUser } from "../../../types/users/users.types";
-import { apiRoutes } from "../../../utils/constants/apiUrl.constant";
+import { PayloadAction } from "@reduxjs/toolkit";
+
 import { apiCall } from "../../../utils/helpers/apiCall.helpers";
 import userSlice from "../../reducers/users/userSlice.create";
-
-import { PayloadAction } from "@reduxjs/toolkit";
+import { apiRoutes } from "../../../utils/constants/apiUrl.constant";
 import {
   DELETE_USER,
+  EDIT_USER,
+  UPDATE_USER,
   USER_CREATE,
   USER_GETLIST,
-  EDIT_USER,
 } from "../../action/users/users.action";
 
 const {
@@ -20,13 +21,17 @@ const {
   getUsersFailure,
   deleteUserSuccess,
   deleteUserFailure,
+  editUserStart,
   editUserSuccess,
   editUserFailure,
+  updateUserStart,
+  updateUserSuccess,
+  updateUserFailure,
 } = userSlice.actions;
 
 function* createUserSaga(action: PayloadAction<IUser>) {
   try {
-    const response: AxiosResponse<any> = yield apiCall({
+    const response: AxiosResponse<any> = yield call(apiCall, {
       ...apiRoutes.createUser,
       data: action.payload,
     });
@@ -42,7 +47,7 @@ function* createUserSaga(action: PayloadAction<IUser>) {
 
 function* getUsersSaga() {
   try {
-    const response: AxiosResponse<any> = yield apiCall({
+    const response: AxiosResponse<any> = yield call(apiCall, {
       ...apiRoutes.getUser,
     });
     console.log(response, "response");
@@ -82,9 +87,10 @@ function* deleteUserSaga(action: PayloadAction<string>) {
   }
 }
 
-function* editUserSaga(action: PayloadAction<any>) {
+function* editUserSaga(action: PayloadAction<string>) {
   try {
     const userId: string = action.payload;
+    yield put(editUserStart());
 
     const apiPathWithId: string = apiRoutes.editUser.apiPath.replace(
       ":id",
@@ -96,13 +102,38 @@ function* editUserSaga(action: PayloadAction<any>) {
       method: "GET",
     });
 
-    console.log(response, "response");
-
-    if (response) {
-      yield put(editUserSuccess(response.data.message));
+    if (response && response.data) {
+      yield put(editUserSuccess(response.data));
+    } else {
+      yield put(editUserFailure("Failed to edit user"));
     }
   } catch (error) {
-    yield put(editUserFailure("error"));
+    yield put(editUserFailure);
+  }
+}
+
+function* updateUserSaga(action: PayloadAction<IUser>) {
+  try {
+    const { id, ...userData } = action.payload;
+    yield put(updateUserStart());
+    const apiPathWithId: string = apiRoutes.updateUser.apiPath.replace(
+      ":id",
+      String(id)
+    );
+
+    const response: AxiosResponse<any> = yield call(apiCall, {
+      apiPath: apiPathWithId,
+      method: "PUT",
+      data: userData,
+    });
+
+    if (response) {
+      yield put(updateUserSuccess(response.data.message));
+    } else {
+      yield put(updateUserFailure("Failed to update user"));
+    }
+  } catch (error) {
+    yield put(updateUserFailure(error));
   }
 }
 
@@ -111,4 +142,5 @@ export function* watchCreateUser() {
   yield takeEvery(USER_GETLIST, getUsersSaga);
   yield takeEvery(DELETE_USER, deleteUserSaga);
   yield takeEvery(EDIT_USER, editUserSaga);
+  yield takeEvery(UPDATE_USER, updateUserSaga);
 }

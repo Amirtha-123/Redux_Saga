@@ -9,7 +9,13 @@ const CreatePage = lazy(() => import("../../pages/CreatePage"));
 const CustomRouter = () => {
   return (
     <div>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense
+        fallback={
+          <div>
+            <h2>Loading...</h2>
+          </div>
+        }
+      >
         <Routes>
           <Route path={ROUTERS.landing} element={<ListPage />} />
           <Route path={ROUTERS.home} element={<ListPage />} />

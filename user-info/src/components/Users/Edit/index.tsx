@@ -1,39 +1,59 @@
 import React, { useState, ChangeEvent, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { IUser } from "../../../types/users/users.types";
-import { USER_INIT_STATE } from "../../../utils/constants/users.constants";
 import { validateForm } from "../../../utils/helpers/common.helpers";
 import "../../../App.css";
+import { RootState } from "../../../store/store";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { ROUTERS } from "../../../utils/constants/router.constants";
-import { useNavigate } from "react-router-dom";
 import {
   editUserAction,
   updateUserAction,
 } from "../../../store/action/users/users.action";
-import { RootState } from "../../../store/store";
+import userSlice from "../../../store/reducers/users/userSlice.create";
 
+const { userUpdateReset } = userSlice.actions;
 const EditUser = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const users = useSelector((state: RootState) => state.user.users); // Assuming 'user' is the correct slice name in the rootReducer
+  const { id } = useParams<{ id: undefined }>();
 
-  const [currentData, setCurrentData] = useState<IUser>({ ...USER_INIT_STATE });
+  const dispatch = useDispatch();
+  const { currentUser, isLoading, isUpdated, isUpdateLoading } = useSelector(
+    (state: RootState) => state.user
+  );
+  const [currentFormData, setCurrentFormData] = useState<IUser | null>(
+    currentUser
+  );
 
   useEffect(() => {
-    dispatch(editUserAction());
-  }, [dispatch]);
+    const fetchUserData = async () => {
+      try {
+        if (id) {
+          dispatch(editUserAction(id));
+        }
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      }
+    };
+    fetchUserData();
+  }, [dispatch, id]);
 
-  console.log(users, "users");
+  useEffect(() => {
+    if (currentUser) {
+      setCurrentFormData({ ...currentUser });
+    }
+  }, [currentUser]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    const isValid = validateForm(currentData);
-    if (isValid) {
-      dispatch(updateUserAction());
-      setTimeout(() => {
-        navigate(ROUTERS.home);
-      }, 1000);
+    const isValid = validateForm(currentFormData);
+    if (isValid && currentFormData && !isLoading) {
+      try {
+        dispatch(updateUserAction({ id, ...currentFormData }));
+      } catch (error) {
+        console.error("Failed to update user:", error);
+      }
     }
   };
 
@@ -42,26 +62,29 @@ const EditUser = () => {
   ) => {
     const { target } = event;
     const { name, value } = target;
-
-    if (name === "title") {
-      handleTitleChange(target as HTMLSelectElement);
-    }
-
-    setCurrentData({ ...currentData, [name]: value });
-  };
-
-  const handleTitleChange = (target: HTMLSelectElement) => {
-    const { name, value } = target;
-    setCurrentData({ ...currentData, [name]: value });
+    setCurrentFormData((prevData) => ({
+      ...prevData!,
+      [name]: value,
+    }));
   };
 
   const handleReset = () => {
-    setCurrentData({ ...USER_INIT_STATE });
+    setCurrentFormData(currentUser);
   };
+  useEffect(() => {
+    if (isUpdated) {
+      dispatch(userUpdateReset());
+      navigate(ROUTERS.home);
+    }
+  }, [dispatch, isUpdated, navigate]);
+  console.log(isUpdateLoading, "isUpdateLoading", isLoading);
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
   return (
     <div>
-      <form onSubmit={handleSubmit}>
+      <form>
         <h1>Editing User Form...</h1>
         <div>
           <label>Title :</label>
@@ -69,7 +92,7 @@ const EditUser = () => {
             id="title"
             name="title"
             onChange={handleChange}
-            value={currentData.title}
+            value={currentFormData?.title}
           >
             <option value="">Select title</option>
             <option value="mr">mr</option>
@@ -86,7 +109,7 @@ const EditUser = () => {
             id="firstName"
             name="firstName"
             onChange={handleChange}
-            value={currentData.firstName}
+            value={currentFormData?.firstName}
           />
         </div>
         <br />
@@ -97,25 +120,31 @@ const EditUser = () => {
             id="lastName"
             name="lastName"
             onChange={handleChange}
-            value={currentData.lastName}
+            value={currentFormData?.lastName}
           />
         </div>{" "}
         <br />
         <div>
-          <label htmlFor="email">E-mail:</label>
+          <label htmlFor="email">Email:</label>
           <input
             type="email"
             id="email"
             name="email"
             onChange={handleChange}
-            value={currentData.email}
+            value={currentFormData?.email}
           />
-        </div>
-        <br />
+        </div>{" "}
+        <br /> <br />
         <div>
-          <button type="submit">Update</button>
+          <button
+            onClick={handleSubmit}
+            type="submit"
+            disabled={isUpdateLoading}
+          >
+            {isLoading ? "Updating..." : "Update"}
+          </button>
           &nbsp;&nbsp;
-          <button type="reset" onClick={handleReset}>
+          <button type="reset" onClick={handleReset} disabled={isUpdateLoading}>
             Reset
           </button>
         </div>
