@@ -19,6 +19,7 @@ const {
   createUserFailure,
   getUsersSuccess,
   getUsersFailure,
+  deleteUser,
   deleteUserSuccess,
   deleteUserFailure,
   editUserStart,
@@ -41,7 +42,7 @@ function* createUserSaga(action: PayloadAction<IUser>) {
       yield put(createUserFailure("Failed to create user"));
     }
   } catch (error) {
-    yield put(createUserFailure("error"));
+    yield put(createUserFailure("Failed to create user"));
   }
 }
 
@@ -59,14 +60,15 @@ function* getUsersSaga() {
     }
   } catch (error) {
     console.log("SAGA ERROR", error);
-    yield put(getUsersFailure("error"));
+    yield put(getUsersFailure("Failed to fetch users"));
+  
   }
 }
 
 function* deleteUserSaga(action: PayloadAction<string>) {
   try {
     const userId: string = action.payload;
-
+    yield put(deleteUser(userId));
     const apiPathWithId: string = apiRoutes.deleteUser.apiPath.replace(
       ":id",
       userId
@@ -83,7 +85,8 @@ function* deleteUserSaga(action: PayloadAction<string>) {
       yield put(deleteUserFailure("Failed to delete user"));
     }
   } catch (error) {
-    yield put(deleteUserFailure("error"));
+    yield put(deleteUserFailure("Failed to delete user"));
+
   }
 }
 
@@ -108,7 +111,8 @@ function* editUserSaga(action: PayloadAction<string>) {
       yield put(editUserFailure("Failed to edit user"));
     }
   } catch (error) {
-    yield put(editUserFailure);
+    yield put(editUserFailure("Failed to edit user"));
+    
   }
 }
 
@@ -133,7 +137,8 @@ function* updateUserSaga(action: PayloadAction<IUser>) {
       yield put(updateUserFailure("Failed to update user"));
     }
   } catch (error) {
-    yield put(updateUserFailure(error));
+    yield put(updateUserFailure("Failed to update user"));
+    
   }
 }
 

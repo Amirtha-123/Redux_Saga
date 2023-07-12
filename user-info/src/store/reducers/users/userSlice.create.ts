@@ -84,7 +84,7 @@ const userSlice = createSlice({
       const updatedUsers = state.users.filter((user) => user.id !== userId);
       return {
         ...state,
-        isLoading: false,
+        isLoading:true,
         users: updatedUsers,
         error: null,
         isDeleteLoading: true,
@@ -93,6 +93,7 @@ const userSlice = createSlice({
     deleteUserSuccess: (state: IUserReducer) => {
       return {
         ...state,
+        isLoading: false,
         successMessage: "User deleted successfully",
         error: null,
         isDelete: true,
@@ -102,14 +103,16 @@ const userSlice = createSlice({
     deleteUserFailure: (state: IUserReducer, action: PayloadAction<string>) => {
       return {
         ...state,
+        isLoading: false,
         error: action.payload,
+        isDelete: false,
         isDeleteLoading: false,
       };
     },
-    userDeleteRest: (state) => {
+    userDeleteReset: (state) => {
       return {
         ...state,
-        isdelete: false,
+        isDelete: false,
         currentUser: null,
         isDeleteLoading: false,
       };

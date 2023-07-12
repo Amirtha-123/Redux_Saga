@@ -45,10 +45,10 @@ const EditUser = () => {
     }
   }, [currentUser]);
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const isValid = validateForm(currentFormData);
-    if (isValid && currentFormData && !isLoading) {
+    if (await isValid && currentFormData && !isLoading) {
       try {
         dispatch(updateUserAction({ id, ...currentFormData }));
       } catch (error) {
@@ -79,11 +79,13 @@ const EditUser = () => {
   }, [dispatch, isUpdated, navigate]);
   console.log(isUpdateLoading, "isUpdateLoading", isLoading);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  
   return (
-    <div>
+    <div>  
+      {isLoading ? (
+      <div>Loading...</div>
+    ) : (
+
       <form>
         <h1>Editing User Form...</h1>
         <div>
@@ -149,6 +151,7 @@ const EditUser = () => {
           </button>
         </div>
       </form>
+    )}
     </div>
   );
 };

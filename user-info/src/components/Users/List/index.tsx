@@ -8,39 +8,46 @@ import {
   getUserAction,
 } from "../../../store/action/users/users.action";
 import "../../../style/style.css";
+import userSlice from "../../../store/reducers/users/userSlice.create";
 
+const { userDeleteReset } = userSlice.actions;
 const List = () => {
   const dispatch = useDispatch();
+  const { isLoading, isDelete, isDeleteLoading } = useSelector(
+    (state: RootState) => state.user
+  );
   const users = useSelector((state: RootState) => state.user.users);
-  const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
     const fetchData = () => {
       try {
-        setIsLoading(true);
+        
         dispatch(getUserAction());
       } catch (error) {
         console.error("Failed to fetch user data:", error);
-      } finally {
-        setIsLoading(false);
       }
     };
     fetchData();
   }, [dispatch]);
 
+  useEffect(() => {
+    if(isDelete){
+      dispatch(userDeleteReset());
+    }
+  }, [dispatch,isDelete]);
+  console.log(isDeleteLoading,"isDeleteLoading",isLoading);
+  
+
   const handleDeleteUser = (userId: undefined) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
-      dispatch(deleteUserAction(userId));
-      setIsLoading(false);
+      if (!isDeleteLoading) {
+        dispatch(deleteUserAction(userId));
+      }
     }
   };
 
   return (
     <div>
       <h2>User List</h2>
-      {isLoading ? (
-        <div>Loading...</div>
-      ) : (
         <ul>
           {users.length > 0 ? (
             users.map((user) => (
@@ -62,7 +69,7 @@ const List = () => {
                 <br />
                 <button
                   onClick={() => handleDeleteUser(user.id)}
-                  disabled={isLoading}
+                  disabled={isLoading || isDeleteLoading}
                 >
                   Delete
                 </button>
@@ -73,10 +80,10 @@ const List = () => {
               </li>
             ))
           ) : (
-            <p>No users found</p>
+            <p>Loading...</p>
           )}
         </ul>
-      )}
+      
     </div>
   );
 };

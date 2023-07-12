@@ -22,11 +22,15 @@ export const apiCall = async (apiConfig: IApionfig): Promise<any> => {
     const response = await axios(requestConfig);
 
     if (response.status === 200) {
+      const successMessage = response.data?.message; 
+      if (successMessage) {
+        alert(successMessage); 
+      }
       return response;
     } else {
-      console.log(`Request failed with status ${response.status}`);
+      alert(`Request failed with status ${response.status}`);
     }
   } catch (error) {
-    console.log(error, "error");
+    alert(error);
   }
 };

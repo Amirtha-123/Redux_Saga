@@ -21,17 +21,17 @@ const UserForm = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const isValid = validateForm(formData);
-    if (isValid) {
+    if (await isValid) {
       setIsLoading(true);
       const data = {
         ...formData,
         //firstName: "test",
       };
       dispatch(createUserAction(data));
-
+      navigate(ROUTERS.home);
       setIsLoading(false);
     }
   };
